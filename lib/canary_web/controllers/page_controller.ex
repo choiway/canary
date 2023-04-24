@@ -7,8 +7,8 @@ defmodule CanaryWeb.PageController do
   def home(conn, _params) do
     # The home page is often custom made,
     # so skip the default app layout.
-    Task.async(fn -> ping("192.168.10.66") end)
-    Task.async(fn -> ping("192.168.10.24") end)
+    # Task.async(fn -> ping("192.168.10.66") end)
+    # Task.async(fn -> ping("192.168.10.24") end)
 
     machines = Machines.list_machines()
     render(conn, :home, layout: false, machines: machines)
@@ -16,6 +16,8 @@ defmodule CanaryWeb.PageController do
 
   def ping(ip_address) do
     response = System.cmd("ping", ["-c", "1", ip_address])
+
+    IO.inspect(response)
 
     case response do
       {output, 0} ->
@@ -29,7 +31,7 @@ defmodule CanaryWeb.PageController do
 
       # Machines.update_machine(%{ip_address: ip_address, payload: %{status: "up"}})
       {output, 1} ->
-        [_ping_message, icmp_response, _, _ping_statistics, packets_trasmitted, _rtt_msg, _] =
+        [_ping_message, icmp_response, _, _ping_statistics, packets_trasmitted, _rtt_msg] =
           String.split(output, "\n")
 
         IO.puts(icmp_response)

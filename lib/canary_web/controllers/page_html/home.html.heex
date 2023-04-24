@@ -1,15 +1,10 @@
 <.flash_group flash={@flash} />
-<div class="p-8 bg-slate-600 h-screen">
+<div class="p-2 md:p-8 bg-slate-600 h-screen flex justify-center">
+  <div class="w-full md:w-1/2">
   <div class="my-4 flex justify-between">
     <div class="text-2xl text-white">CANARY</div>
     <.link class="bg-white px-4 py-2 rounded text-slate-600" href={~p"/machines"}>Machines</.link>
   </div>
-  <div class="grid grid-cols-4 gap-4">
-    <%= for machine <- @machines do %>
-      <div class="bg-slate-400 p-4 rounded">
-        <p><%= machine.name %></p>
-        <p><%= machine.ip_address %></p>
-      </div>
-    <% end %>
+  <%= live_render(@conn, CanaryWeb.HomeLive) %>
   </div>
 </div>
