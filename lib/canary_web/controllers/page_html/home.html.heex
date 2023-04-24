@@ -1,7 +1,8 @@
 <.flash_group flash={@flash} />
 <div class="p-8 bg-slate-600 h-screen">
-  <div>
-    <.link href={~p"/machines"}>Machines</.link>
+  <div class="my-4 flex justify-between">
+    <div class="text-2xl text-white">Zfyr</div>
+    <.link class="bg-white px-4 py-2 rounded text-slate-600" href={~p"/machines"}>Machines</.link>
   </div>
   <div class="grid grid-cols-4 gap-4">
     <%= for machine <- @machines do %>
