@@ -1,0 +1,8 @@
+<.header>
+  Edit Machine <%= @machine.id %>
+  <:subtitle>Use this form to manage machine records in your database.</:subtitle>
+</.header>
+
+<.machine_form changeset={@changeset} action={~p"/machines/#{@machine}"} />
+
+<.back navigate={~p"/machines"}>Back to machines</.back>

@@ -1,0 +1,17 @@
+<.header>
+  Machine <%= @machine.id %>
+  <:subtitle>This is a machine record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/machines/#{@machine}/edit"}>
+      <.button>Edit machine</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Name"><%= @machine.name %></:item>
+  <:item title="Ip address"><%= @machine.ip_address %></:item>
+  <:item title="Payload"><%= @machine.payload %></:item>
+</.list>
+
+<.back navigate={~p"/machines"}>Back to machines</.back>
