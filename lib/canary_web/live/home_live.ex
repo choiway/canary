@@ -8,7 +8,9 @@ defmodule CanaryWeb.HomeLive do
     <div class="grid grid-cols-3 gap-3">
       <%= for machine <- @machines do %>
         <div class="bg-white p-4 rounded opacity-75">
-          <p><%= machine.name %></p>
+          <p>
+            <.link navigate={"/machines/#{machine.id}"}><%= machine.name %></.link>
+          </p>
           <p>
             <span class="text-gray-400"><%= machine.ip_address %></span>
             <%= if  machine.online == "initializing" do %>
@@ -35,6 +37,7 @@ defmodule CanaryWeb.HomeLive do
       Machines.list_machines()
       |> Enum.map(fn machine ->
         %{
+          id: machine.id,
           name: machine.name,
           ip_address: machine.ip_address,
           online: "initializing"
@@ -46,16 +49,11 @@ defmodule CanaryWeb.HomeLive do
 
   def handle_info(:update, socket) do
     Process.send_after(self(), :update, 60000)
-    # IO.puts("Updating the machines")
 
     machines =
       Machines.list_machines()
       |> Enum.map(fn machine ->
-        %{
-          name: machine.name,
-          ip_address: machine.ip_address,
-          online: ping(machine.ip_address)
-        }
+        %{machine | online: ping(machine.ip_address)}
       end)
 
     {:noreply, assign(socket, :machines, machines)}

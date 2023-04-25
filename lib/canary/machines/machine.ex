@@ -2,6 +2,7 @@ defmodule Canary.Machines.Machine do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, :id, autogenerate: true, source: :rowid}
   schema "machines" do
     field :ip_address, :string
     field :name, :string
