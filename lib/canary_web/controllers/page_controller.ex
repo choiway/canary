@@ -13,33 +13,4 @@ defmodule CanaryWeb.PageController do
     machines = Machines.list_machines()
     render(conn, :home, layout: false, machines: machines)
   end
-
-  def ping(ip_address) do
-    response = System.cmd("ping", ["-c", "1", ip_address])
-
-    IO.inspect(response)
-
-    case response do
-      {output, 0} ->
-        [_ping_message, icmp_response, _, _ping_statistics, packets_trasmitted, _rtt_msg, _] =
-          String.split(output, "\n")
-
-        IO.puts(icmp_response)
-        IO.puts(packets_trasmitted)
-
-        IO.puts("Machine at #{ip_address} is up")
-
-      # Machines.update_machine(%{ip_address: ip_address, payload: %{status: "up"}})
-      {output, 1} ->
-        [_ping_message, icmp_response, _, _ping_statistics, packets_trasmitted, _rtt_msg] =
-          String.split(output, "\n")
-
-        IO.puts(icmp_response)
-        IO.puts(packets_trasmitted)
-
-        IO.puts("Machine at #{ip_address} is down")
-
-        # Machines.update_machine(%{ip_address: ip_address, payload: %{status: "down"}})
-    end
-  end
 end

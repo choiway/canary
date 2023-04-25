@@ -9,7 +9,18 @@ defmodule CanaryWeb.HomeLive do
       <%= for machine <- @machines do %>
         <div class="bg-white p-4 rounded opacity-75">
           <p><%= machine.name %></p>
-          <p><%= machine.ip_address %></p>
+          <p>
+            <span class="text-gray-400"><%= machine.ip_address %></span>
+            <%= if  machine.online == "initializing" do %>
+              <span class="bg-gray-300 rounded-full h-3 w-3 inline-block"></span>
+            <% end %>
+            <%= if  machine.online == "online" do %>
+              <span class="bg-green-500 rounded-full h-3 w-3 inline-block"></span>
+            <% end %>
+            <%= if  machine.online == "down" do %>
+              <span class="bg-red-500 rounded-full h-3 w-3 inline-block"></span>
+            <% end %>
+          </p>
         </div>
       <% end %>
     </div>
@@ -17,18 +28,49 @@ defmodule CanaryWeb.HomeLive do
   end
 
   def mount(_params, _session, socket) do
-    if connected?(socket), do: Process.send_after(self(), :update, 30000)
+    # Initial update starts after 1 second
+    if connected?(socket), do: Process.send_after(self(), :update, 1000)
 
+    machines =
+      Machines.list_machines()
+      |> Enum.map(fn machine ->
+        %{
+          name: machine.name,
+          ip_address: machine.ip_address,
+          online: "initializing"
+        }
+      end)
 
-    machines = Machines.list_machines()
     {:ok, assign(socket, :machines, machines)}
   end
 
   def handle_info(:update, socket) do
-    Process.send_after(self(), :update, 30000)
-    IO.puts("Updating the machines")
+    Process.send_after(self(), :update, 60000)
+    # IO.puts("Updating the machines")
 
-    machines = Machines.list_machines()
+    machines =
+      Machines.list_machines()
+      |> Enum.map(fn machine ->
+        %{
+          name: machine.name,
+          ip_address: machine.ip_address,
+          online: ping(machine.ip_address)
+        }
+      end)
+
     {:noreply, assign(socket, :machines, machines)}
+  end
+
+  def ping(ip_address) do
+    response = System.cmd("ping", ["-c", "1", ip_address])
+
+    case response do
+      {_output, 0} ->
+        "online"
+
+      {output, 1} ->
+        IO.inspect(output)
+        "down"
+    end
   end
 end
