@@ -24,8 +24,10 @@ erl_crash.dump
 
 # Ignore package tarball (built via "mix hex.build").
 canary-*.tar
+canary.tar.gz
 
 # Ignore assets that are produced by build tools.
+/priv/static/
 /priv/static/assets/
 
 # Ignore digested assets cache.
