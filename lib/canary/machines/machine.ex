@@ -6,6 +6,7 @@ defmodule Canary.Machines.Machine do
     field :ip_address, :string
     field :name, :string
     field :payload, :map
+    field :online, :string, virtual: true
 
     timestamps()
   end
