@@ -4,6 +4,7 @@ defmodule Canary.Application do
   @moduledoc false
 
   use Application
+  alias Canary.InitMachineWatchers
 
   @impl true
   def start(_type, _args) do
@@ -17,6 +18,7 @@ defmodule Canary.Application do
       # Start Finch
       {Finch, name: Canary.Finch},
       # Start the Endpoint (http/https)
+      {DynamicSupervisor, name: Canary.DynamicSupervisor, strategy: :one_for_one},
       CanaryWeb.Endpoint
       # Start a worker by calling: Canary.Worker.start_link(arg)
       # {Canary.Worker, arg}
@@ -25,7 +27,16 @@ defmodule Canary.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Canary.Supervisor]
-    Supervisor.start_link(children, opts)
+    start_response = Supervisor.start_link(children, opts)
+
+    case start_response do
+      {:ok, _} ->
+        InitMachineWatchers.init()
+        start_response
+
+      _ ->
+        start_response
+    end
   end
 
   # Tell Phoenix to update the endpoint configuration

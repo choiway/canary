@@ -3,6 +3,8 @@ defmodule CanaryWeb.HomeLive do
   use Phoenix.LiveView
   alias Canary.Machines
 
+  @topic "machines"
+
   def render(assigns) do
     ~H"""
     <div class="grid grid-cols-3 gap-3">
@@ -31,24 +33,17 @@ defmodule CanaryWeb.HomeLive do
 
   def mount(_params, _session, socket) do
     # Initial update starts after 1 second
-    if connected?(socket), do: Process.send_after(self(), :update, 1000)
+    CanaryWeb.Endpoint.subscribe(@topic)
 
-    machines =
-      Machines.list_machines()
-      |> Enum.map(fn machine ->
-        %{
-          id: machine.id,
-          name: machine.name,
-          ip_address: machine.ip_address,
-          online: "initializing"
-        }
-      end)
+    # if connected?(socket), do: Process.send_after(self(), :update, 1000)
+
+    machines = Machines.list_machines()
 
     {:ok, assign(socket, :machines, machines)}
   end
 
   def handle_info(:update, socket) do
-    Process.send_after(self(), :update, 60000)
+    # Process.send_after(self(), :update, 60000)
 
     machines =
       Machines.list_machines()
@@ -57,6 +52,17 @@ defmodule CanaryWeb.HomeLive do
       end)
 
     {:noreply, assign(socket, :machines, machines)}
+  end
+
+  def handle_info(%{topic: @topic, payload: updated_machine}, socket) do
+    # IO.puts("HANDLE BROADCAST FOR:")
+    # IO.inspect(updated_machine)
+    machines = socket.assigns.machines
+
+    updated_machines =
+      Enum.map(machines, fn m -> if m.id == updated_machine.id, do: updated_machine, else: m end)
+
+    {:noreply, assign(socket, :machines, updated_machines)}
   end
 
   def ping(ip_address) do

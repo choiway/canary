@@ -7,7 +7,8 @@ defmodule Canary.Machines.Machine do
     field :ip_address, :string
     field :name, :string
     field :payload, :map
-    field :online, :string, virtual: true
+    field :online, :string
+    field :notes, :string
 
     timestamps()
   end
@@ -15,7 +16,7 @@ defmodule Canary.Machines.Machine do
   @doc false
   def changeset(machine, attrs) do
     machine
-    |> cast(attrs, [:name, :ip_address, :payload])
+    |> cast(attrs, [:name, :ip_address, :payload, :online, :notes])
     |> validate_required([:name, :ip_address])
   end
 end

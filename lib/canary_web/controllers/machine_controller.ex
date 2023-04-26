@@ -17,6 +17,8 @@ defmodule CanaryWeb.MachineController do
   def create(conn, %{"machine" => machine_params}) do
     case Machines.create_machine(machine_params) do
       {:ok, machine} ->
+        Task.start(fn -> Canary.InitMachineWatchers.start_trader(machine) end)
+
         conn
         |> put_flash(:info, "Machine created successfully.")
         |> redirect(to: ~p"/machines/#{machine}")
