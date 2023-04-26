@@ -59,7 +59,7 @@ defmodule Canary.MachineWatcher do
   end
 
   defp schedule_work() do
-    seconds = 30
+    seconds = 60
     Process.send_after(self(), :work, seconds * 1000)
   end
 
