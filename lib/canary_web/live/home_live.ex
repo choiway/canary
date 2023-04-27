@@ -7,7 +7,7 @@ defmodule CanaryWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3">
       <%= for machine <- @machines do %>
         <div class="bg-white p-4 rounded opacity-75">
           <p>
