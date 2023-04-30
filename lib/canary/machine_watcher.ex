@@ -70,9 +70,13 @@ defmodule Canary.MachineWatcher do
       {_output, 0} ->
         "online"
 
-      {output, 1} ->
-        IO.inspect(output)
+      {_output, 1} ->
+        # IO.inspect(output)
         "down"
+
+      {output, 2} -> 
+        IO.inspect(output, label: "Ping response with error code: 2")
+        "down" 
     end
   end
 end

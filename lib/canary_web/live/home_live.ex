@@ -32,27 +32,22 @@ defmodule CanaryWeb.HomeLive do
   end
 
   def mount(_params, _session, socket) do
-    # Initial update starts after 1 second
     CanaryWeb.Endpoint.subscribe(@topic)
-
-    # if connected?(socket), do: Process.send_after(self(), :update, 1000)
 
     machines = Machines.list_machines()
 
     {:ok, assign(socket, :machines, machines)}
   end
 
-  def handle_info(:update, socket) do
-    # Process.send_after(self(), :update, 60000)
-
-    machines =
-      Machines.list_machines()
-      |> Enum.map(fn machine ->
-        %{machine | online: ping(machine.ip_address)}
-      end)
-
-    {:noreply, assign(socket, :machines, machines)}
-  end
+  # def handle_info(:update, socket) do
+  #   machines =
+    #   Machines.list_machines()
+    #   |> Enum.map(fn machine ->
+    #     %{machine | online: ping(machine.ip_address)}
+    #   end)
+    #
+    # {:noreply, assign(socket, :machines, machines)}
+  # end
 
   def handle_info(%{topic: @topic, payload: updated_machine}, socket) do
     # IO.puts("HANDLE BROADCAST FOR:")
@@ -65,16 +60,16 @@ defmodule CanaryWeb.HomeLive do
     {:noreply, assign(socket, :machines, updated_machines)}
   end
 
-  def ping(ip_address) do
-    response = System.cmd("ping", ["-c", "1", ip_address])
-
-    case response do
-      {_output, 0} ->
-        "online"
-
-      {output, 1} ->
-        IO.inspect(output)
-        "down"
-    end
-  end
+  # def ping(ip_address) do
+  #   response = System.cmd("ping", ["-c", "1", ip_address])
+  #
+  #   case response do
+  #     {_output, 0} ->
+  #       "online"
+  #
+  #     {output, 1} ->
+  #       IO.inspect(output)
+  #       "down"
+  #   end
+  # end
 end
