@@ -34,19 +34,23 @@ defmodule CanaryWeb.HomeLive do
   def mount(_params, _session, socket) do
     CanaryWeb.Endpoint.subscribe(@topic)
 
-    machines = Machines.list_machines()
+    machines =
+      Machines.list_machines()
+      |> Enum.map(fn machine ->
+        %{machine | online: "initializing"}
+      end)
 
     {:ok, assign(socket, :machines, machines)}
   end
 
   # def handle_info(:update, socket) do
   #   machines =
-    #   Machines.list_machines()
-    #   |> Enum.map(fn machine ->
-    #     %{machine | online: ping(machine.ip_address)}
-    #   end)
-    #
-    # {:noreply, assign(socket, :machines, machines)}
+  #   Machines.list_machines()
+  #   |> Enum.map(fn machine ->
+  #     %{machine | online: ping(machine.ip_address)}
+  #   end)
+  #
+  # {:noreply, assign(socket, :machines, machines)}
   # end
 
   def handle_info(%{topic: @topic, payload: updated_machine}, socket) do
@@ -54,6 +58,8 @@ defmodule CanaryWeb.HomeLive do
     # IO.inspect(updated_machine)
     machines = socket.assigns.machines
 
+    # For some reason this update fails. Thought it was a permissions issue but that hasn't
+    # fixed it. need to think through this
     updated_machines =
       Enum.map(machines, fn m -> if m.id == updated_machine.id, do: updated_machine, else: m end)
 
