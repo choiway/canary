@@ -33,19 +33,26 @@ defmodule Canary.MachineWatcher do
   @impl true
   def handle_info(:work, state = [machine: %Machine{} = machine]) do
     # IO.puts("Working. State is:")
+    IO.inspect(state)
     online_status = ping(machine.ip_address)
+    new_ping = %{
+      machine_id: machine.id,
+      type: "ping",
+      status: online_status
+    }
 
     # IO.puts("Machine #{machine.id} is #{online_status}")
-    update_response = Machines.update_machine(machine, %{online: online_status})
-    # IO.inspect(update_response)
+    # update_response = Machines.update_machine(machine, %{online: online_status})
+    create_response = Machines.create_ping(new_ping)
+    IO.inspect(create_response)
 
-    case update_response do
-      {:ok, updated_machine} ->
+    case create_response do
+      {:ok, new_machine} ->
         CanaryWeb.Endpoint.broadcast_from(
           self(),
           @topic,
           "update",
-          updated_machine
+          new_machine
         )
 
       {:error, changeset} ->

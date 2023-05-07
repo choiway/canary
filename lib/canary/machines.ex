@@ -101,4 +101,16 @@ defmodule Canary.Machines do
   def change_machine(%Machine{} = machine, attrs \\ %{}) do
     Machine.changeset(machine, attrs)
   end
+
+  alias Canary.Machines.Ping
+
+  def list_pings do
+    Repo.all(from p in Ping, order_by: [asc: p.id])
+  end
+
+  def create_ping(attrs \\ %{}) do
+    %Ping{}
+    |> Ping.changeset(attrs)
+    |> Repo.insert()
+  end
 end

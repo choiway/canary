@@ -14,7 +14,7 @@ defmodule CanaryWeb.HomeLive do
             <.link navigate={"/machines/#{machine.id}"}><%= machine.name %></.link>
           </p>
           <p>
-            <span class="text-gray-400"><%= machine.ip_address %></span>
+            <span class="text-gray-400 text-sm"><%= machine.ip_address %></span>
             <%= if  machine.online == "initializing" do %>
               <span class="bg-gray-300 rounded-full h-3 w-3 inline-block"></span>
             <% end %>
@@ -35,8 +35,15 @@ defmodule CanaryWeb.HomeLive do
     CanaryWeb.Endpoint.subscribe(@topic)
 
     machines = Machines.list_machines()
+    pings = init_pings(machines)
 
-    {:ok, assign(socket, :machines, machines)}
+    {:ok, assign(socket, machines: machines, pings: pings)}
+  end
+
+  defp init_pings(machines) do
+    Map.new(machines, fn m ->
+      {m, []}
+    end)
   end
 
   # def handle_info(:update, socket) do
