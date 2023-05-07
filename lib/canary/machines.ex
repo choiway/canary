@@ -18,7 +18,7 @@ defmodule Canary.Machines do
 
   """
   def list_machines do
-    Repo.all(Machine)
+    Repo.all(from m in Machine, order_by: [asc: m.id])
   end
 
   @doc """

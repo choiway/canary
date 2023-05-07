@@ -34,11 +34,7 @@ defmodule CanaryWeb.HomeLive do
   def mount(_params, _session, socket) do
     CanaryWeb.Endpoint.subscribe(@topic)
 
-    machines =
-      Machines.list_machines()
-      |> Enum.map(fn machine ->
-        %{machine | online: "initializing"}
-      end)
+    machines = Machines.list_machines()
 
     {:ok, assign(socket, :machines, machines)}
   end
