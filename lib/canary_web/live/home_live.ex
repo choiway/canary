@@ -15,16 +15,17 @@ defmodule CanaryWeb.HomeLive do
           </p>
           <p>
             <span class="text-gray-400 text-sm"><%= machine.ip_address %></span>
-            <%= if  machine.online == "initializing" do %>
-              <span class="bg-gray-300 rounded-full h-3 w-3 inline-block"></span>
-            <% end %>
-            <%= if  machine.online == "online" do %>
-              <span class="bg-green-500 rounded-full h-3 w-3 inline-block"></span>
-            <% end %>
-            <%= if  machine.online == "down" do %>
-              <span class="bg-red-500 rounded-full h-3 w-3 inline-block"></span>
-            <% end %>
           </p>
+          <div>
+            <%= for ping <- Map.get(@pings_map, machine.id) do %>
+              <%= if  ping.status == "online" do %>
+                <span class="bg-green-300 rounded h-5 w-1 inline-block"></span>
+              <% end %>
+              <%= if  ping.status == "down" do %>
+                <span class="bg-red-300 rounded h-5 w-1 inline-block"></span>
+              <% end %>
+            <% end %>
+          </div>
         </div>
       <% end %>
     </div>
@@ -35,50 +36,31 @@ defmodule CanaryWeb.HomeLive do
     CanaryWeb.Endpoint.subscribe(@topic)
 
     machines = Machines.list_machines()
-    pings = init_pings(machines)
 
-    {:ok, assign(socket, machines: machines, pings: pings)}
+    pings_map = init_pings(machines)
+    # IO.inspect(pings)
+
+    {:ok, assign(socket, machines: machines, pings_map: pings_map)}
   end
 
+  # pings map is a map of machine_id => [pings]
+  #  Initializes with empty list of pings for each machine
   defp init_pings(machines) do
-    Map.new(machines, fn m ->
-      {m, []}
+    machines
+    |> Map.new(fn m ->
+      {m.id, []}
     end)
   end
 
-  # def handle_info(:update, socket) do
-  #   machines =
-  #   Machines.list_machines()
-  #   |> Enum.map(fn machine ->
-  #     %{machine | online: ping(machine.ip_address)}
-  #   end)
-  #
-  # {:noreply, assign(socket, :machines, machines)}
-  # end
-
-  def handle_info(%{topic: @topic, payload: updated_machine}, socket) do
+  def handle_info(
+        %{topic: @topic, event: "update", payload: %{machine: machine, pings: pings}},
+        socket
+      ) do
     # IO.puts("HANDLE BROADCAST FOR:")
-    # IO.inspect(updated_machine)
-    machines = socket.assigns.machines
+    # IO.inspect(machine)
+    pings_map = socket.assigns.pings_map
+    updated_pings = pings_map |> Map.put(machine.id, pings)
 
-    # For some reason this update fails. Thought it was a permissions issue but that hasn't
-    # fixed it. need to think through this
-    updated_machines =
-      Enum.map(machines, fn m -> if m.id == updated_machine.id, do: updated_machine, else: m end)
-
-    {:noreply, assign(socket, :machines, updated_machines)}
+    {:noreply, assign(socket, pings_map: updated_pings)}
   end
-
-  # def ping(ip_address) do
-  #   response = System.cmd("ping", ["-c", "1", ip_address])
-  #
-  #   case response do
-  #     {_output, 0} ->
-  #       "online"
-  #
-  #     {output, 1} ->
-  #       IO.inspect(output)
-  #       "down"
-  #   end
-  # end
 end

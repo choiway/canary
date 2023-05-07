@@ -24,35 +24,38 @@ defmodule Canary.MachineWatcher do
   def init(state) do
     # Logger.info("Initializing a trader with the following state")
     # IO.inspect(state)
+    pings = Machines.list_pings_for_machine(state[:machine].id)
 
     schedule_work()
-
-    {:ok, state}
+    {:ok, [machine: state[:machine], pings: pings]}
   end
 
   @impl true
-  def handle_info(:work, state = [machine: %Machine{} = machine]) do
+  def handle_info(:work, _state = [machine: %Machine{} = machine, pings: pings]) do
     # IO.puts("Working. State is:")
-    IO.inspect(state)
+    # IO.inspect(state)
     online_status = ping(machine.ip_address)
+
     new_ping = %{
       machine_id: machine.id,
       type: "ping",
       status: online_status
     }
 
+    updated_pings = [new_ping | pings] |> Enum.take(30)
+
     # IO.puts("Machine #{machine.id} is #{online_status}")
     # update_response = Machines.update_machine(machine, %{online: online_status})
     create_response = Machines.create_ping(new_ping)
-    IO.inspect(create_response)
+    # IO.inspect(create_response)
 
     case create_response do
-      {:ok, new_machine} ->
+      {:ok, _new_ping} ->
         CanaryWeb.Endpoint.broadcast_from(
           self(),
           @topic,
           "update",
-          new_machine
+          %{machine: machine, pings: updated_pings}
         )
 
       {:error, changeset} ->
@@ -62,7 +65,7 @@ defmodule Canary.MachineWatcher do
 
     schedule_work()
 
-    {:noreply, state}
+    {:noreply, [machine: machine, pings: updated_pings]}
   end
 
   defp schedule_work() do
@@ -81,9 +84,9 @@ defmodule Canary.MachineWatcher do
         # IO.inspect(output)
         "down"
 
-      {output, 2} -> 
+      {output, 2} ->
         IO.inspect(output, label: "Ping response with error code: 2")
-        "down" 
+        "down"
     end
   end
 end

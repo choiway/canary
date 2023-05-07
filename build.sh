@@ -20,12 +20,9 @@ MIX_ENV=prod mix ecto.migrate
 echo_time "Building release version"
 MIX_ENV=prod mix release --overwrite
 
-echo_time "Creating tar file"
-tar -zcf canary.tar.gz _build/prod/rel/canary
-
 echo_time "Finished build!"
 echo "If systemd is managing the service then:"
-echo "  sudo service octopi.service restart"
+echo "  sudo service canary.service restart"
 echo " "
 echo "If the app is running you'll need to kill it:"
 echo "   lsof -i :5000 "

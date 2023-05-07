@@ -108,9 +108,14 @@ defmodule Canary.Machines do
     Repo.all(from p in Ping, order_by: [asc: p.id])
   end
 
+  def list_pings_for_machine(machine_id) do
+    Repo.all(from p in Ping, where: p.machine_id == ^machine_id, order_by: [desc: p.inserted_at], limit: 30)
+  end
+
   def create_ping(attrs \\ %{}) do
     %Ping{}
     |> Ping.changeset(attrs)
     |> Repo.insert()
   end
+
 end
