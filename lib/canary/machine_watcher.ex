@@ -32,9 +32,14 @@ defmodule Canary.MachineWatcher do
     #   "update",
     #   %{machine: state[:machine], pings: pings}
     # )
-    
+
     schedule_work()
     {:ok, [machine: state[:machine], pings: pings]}
+  end
+
+  @impl true
+  def handle_call(:pop_pings, _from, state = [machine: %Machine{} = _machine, pings: pings]) do
+    {:reply, pings, state}
   end
 
   @impl true

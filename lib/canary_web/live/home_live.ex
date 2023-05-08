@@ -48,7 +48,7 @@ defmodule CanaryWeb.HomeLive do
   defp init_pings(machines) do
     machines
     |> Map.new(fn m ->
-      {m.id, Machines.list_pings_for_machine(m.id)}
+      {m.id, GenServer.call(String.to_atom("watcher_#{m.id}"), :pop_pings)}
     end)
   end
 
