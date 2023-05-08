@@ -19,10 +19,10 @@ defmodule CanaryWeb.HomeLive do
           <div>
             <%= for ping <- Map.get(@pings_map, machine.id) do %>
               <%= if  ping.status == "online" do %>
-                <span class="bg-green-300 rounded h-5 w-1 inline-block"></span>
+                <span class="bg-green-400 rounded h-5 w-1 inline-block"></span>
               <% end %>
               <%= if  ping.status == "down" do %>
-                <span class="bg-red-300 rounded h-5 w-1 inline-block"></span>
+                <span class="bg-red-400 rounded h-5 w-1 inline-block"></span>
               <% end %>
             <% end %>
           </div>
