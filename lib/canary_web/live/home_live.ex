@@ -9,9 +9,9 @@ defmodule CanaryWeb.HomeLive do
     ~H"""
     <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3">
       <%= for machine <- @machines do %>
-        <div class="bg-white p-4 rounded opacity-75">
+        <div class="border border-gray-600 p-4 rounded">
           <p>
-            <.link navigate={"/machines/#{machine.id}"}><%= machine.name %></.link>
+            <.link class="text-white" navigate={"/machines/#{machine.id}"}><%= machine.name %></.link>
           </p>
           <p>
             <span class="text-gray-400 text-sm"><%= machine.ip_address %></span>
