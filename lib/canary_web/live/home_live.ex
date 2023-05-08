@@ -48,7 +48,7 @@ defmodule CanaryWeb.HomeLive do
   defp init_pings(machines) do
     machines
     |> Map.new(fn m ->
-      {m.id, []}
+      {m.id, Machines.list_pings_for_machine(m.id)}
     end)
   end
 

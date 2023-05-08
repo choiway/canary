@@ -26,6 +26,13 @@ defmodule Canary.MachineWatcher do
     # IO.inspect(state)
     pings = Machines.list_pings_for_machine(state[:machine].id)
 
+    # CanaryWeb.Endpoint.broadcast_from(
+    #   self(),
+    #   @topic,
+    #   "update",
+    #   %{machine: state[:machine], pings: pings}
+    # )
+    
     schedule_work()
     {:ok, [machine: state[:machine], pings: pings]}
   end
