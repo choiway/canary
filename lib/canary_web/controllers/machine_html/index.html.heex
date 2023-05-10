@@ -12,12 +12,12 @@
   <:col :let={machine} label="Ip address"><%= machine.ip_address %></:col>
   <:action :let={machine}>
     <div class="sr-only">
-      <.link navigate={~p"/machines/#{machine}"}>Show</.link>
+      <.link class="text-green-600" navigate={~p"/machines/#{machine}"}>Show</.link>
     </div>
-    <.link navigate={~p"/machines/#{machine}/edit"}>Edit</.link>
+    <.link class="text-zinc-700" navigate={~p"/machines/#{machine}/edit"}>Edit</.link>
   </:action>
   <:action :let={machine}>
-    <.link href={~p"/machines/#{machine}"} method="delete" data-confirm="Are you sure?">
+    <.link class="text-red-900" href={~p"/machines/#{machine}"} method="delete" data-confirm="Are you sure?">
       Delete
     </.link>
   </:action>
