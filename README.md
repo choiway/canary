@@ -4,27 +4,29 @@ Canary is uptime monitor that leverage the Erlang OTP to maximize up time.
 
 # Architecture
 
-To understand the architecture and the choices I've made it may help to understand what I wanted a uptime monitor to achieve. Canary is primarily used in my home lab to keep track of running hardware and virtual machines. Although I wanted to be able to visit the webpage and see which machines were up or down, I also wanted to keep track of the online status of the machine if I didn't have the page open. 
+To understand the architecture, it may help to understand what I wanted a uptime monitor to achieve. Canary is primarily used in my home lab to keep track of the oneline status of my hardware and virtual machines. In addition to checking the status when I visted the website, I wanted the app to keep track the status while I was away.
 
 Most web frameworks follow the standard request/response model as illustrated in Figure 1 below.
 
 ![Standard HTTP request/response model](canary_architecture_std.png "Figure 1")
 
 
-As a quick overview, your standard framework starts an http process that listens for requests. When a request comes in, it gathers the necessary data and presents it back to the user. 
+This is your standard web framework that starts an http process that listens for requests. When a request comes in, it gathers the necessary data and presents it back to the user. 
 
-This model makes it difficult to achieve some of the goals of the app. How would we start the processes to monitor each machine? Once we figured that out, how would we monitor and manage the failure of each process. We would also need to figure how to update the site with the updated info of each machine. Depending on the number of machines and the interval of data that is being tracked the database calls for the historical data could easily become a bottleneck. To keep things snappy, we would also need to figure how to run this asynchronously.
+This model makes it difficult to achieve some of the goals of the app. How would we start the processes to monitor each machine? Once we figured that out, how would we monitor and manage the failure of each process. We would also need to figure how to update the frontend with the updated status of each machine. Depending on the number of machines and the interval of data that is being tracked, database calls for historical data could slow down load times. To keep things snappy, we would also need to figure how to run this asynchronously.
 
-Luckily, the Phoenix Framework built on top of Erlang's OTP has tools to solve these problems built in. Canary's architecture looks like this:
-
+Luckily, the Phoenix Framework, built on top of Erlang's OTP, has tools to solve these problems. Canary's architecture looks like this:
 
 ![Canary Architecture](canary_architecture_phx.png "Figure 2")
 
-What's going on here? First, at start up, the Canary app starts up a watcher for each machine that is being monitored in addition to the http server and channel process which we will broacast messages on.
+What's going on here? First, at start up, Canary starts up a watcher for each machine that is being monitored in addition to the http server and a channel process which we can broacast messages on.
 
-Each watcher pings its machine at a regular interval, insertes a new ping into the database, updates the current state of the pings and broacasts those pings to the appropriate topic on the channel process. Each of these watcher run separately and send messages asynchronously so the user doesn't need to wait for all the pings to complete prior to seeing an update.
+Each watcher pings its machine at a regular interval, inserts a new ping into the database, updates the current state of the pings and broacasts those pings to the appropriate topic on the channel process. Each watcher runs separately and send messages asynchronously so the user doesn't need to wait for all the pings to complete prior to seeing an update.
 
-Canary the dynamic supervisor built into OTP in order to keep track of the watcher, restart watchers if they fail and add and delete watchers while the app running. 
+Canary uses the dynamic supervisor built into OTP in order to keep track of the watcher, restart watchers if they fail and add and delete watchers while the app running. 
+
+Although the architecture adds additional complexity, the end result is a real time, fault tolerant
+uptime monitor that uses standard services available through Erlang's VM. 
 
 # Development
 
