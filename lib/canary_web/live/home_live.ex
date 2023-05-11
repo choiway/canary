@@ -17,12 +17,19 @@ defmodule CanaryWeb.HomeLive do
             <span class="text-gray-400 text-sm"><%= machine.ip_address %></span>
           </p>
           <div>
-            <%= for ping <- Map.get(@pings_map, machine.id) do %>
-              <%= if  ping.status == "online" do %>
-                <span class="bg-green-400 rounded h-5 w-1 inline-block"></span>
-              <% end %>
-              <%= if  ping.status == "down" do %>
-                <span class="bg-red-400 rounded h-5 w-1 inline-block"></span>
+            <%= if Enum.empty?(Map.get(@pings_map, machine.id)) do %>
+              <span class="text-gray-400">Loading...</span>
+            <% else %>
+              <%= for ping <- Map.get(@pings_map, machine.id) do %>
+                <%= if ping  == nil do %>
+                  "empty"
+                <% end %>
+                <%= if  ping.status == "online" do %>
+                  <span class="bg-green-400 rounded h-5 w-1 inline-block"></span>
+                <% end %>
+                <%= if  ping.status == "down" do %>
+                  <span class="bg-red-400 rounded h-5 w-1 inline-block"></span>
+                <% end %>
               <% end %>
             <% end %>
           </div>
@@ -48,8 +55,20 @@ defmodule CanaryWeb.HomeLive do
   defp init_pings(machines) do
     machines
     |> Map.new(fn m ->
-      {m.id, GenServer.call(String.to_atom("watcher_#{m.id}"), :pop_pings)}
+      {m.id, get_pings(m.id)}
     end)
+  end
+
+  def get_pings(machine_id) do
+    machine_id_atom = String.to_atom("watcher_#{machine_id}")
+
+    case Process.whereis(machine_id_atom) do
+      nil ->
+        []
+
+      pid when is_pid(pid) ->
+        GenServer.call(machine_id_atom, :pop_pings)
+    end
   end
 
   def handle_info(
