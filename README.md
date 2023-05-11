@@ -20,7 +20,11 @@ Luckily, the Phoenix Framework built on top of Erlang's OTP has tools to solve t
 
 ![Canary Architecture](canary_architecture_phx.png "Figure 2")
 
-What's going on here. First, at start up, the Canary app starts up a watcher for each machine that is being monitored in addition to the http server and channel process which we will broacast messages on.
+What's going on here? First, at start up, the Canary app starts up a watcher for each machine that is being monitored in addition to the http server and channel process which we will broacast messages on.
+
+Each watcher pings its machine at a regular interval, insertes a new ping into the database, updates the current state of the pings and broacasts those pings to the appropriate topic on the channel process. Each of these watcher run separately and send messages asynchronously so the user doesn't need to wait for all the pings to complete prior to seeing an update.
+
+Canary the dynamic supervisor built into OTP in order to keep track of the watcher, restart watchers if they fail and add and delete watchers while the app running. 
 
 # Development
 
