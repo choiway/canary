@@ -2,7 +2,7 @@
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>
-  <.input class="bg-green-900" field={f[:name]} type="text" label="Name" />
+  <.input field={f[:name]} type="text" label="Name" />
   <.input field={f[:ip_address]} type="text" label="Ip address" />
   <.input field={f[:notes]} type="textarea" label="Notes" />
   <:actions>

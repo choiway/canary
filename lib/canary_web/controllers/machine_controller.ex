@@ -55,7 +55,20 @@ defmodule CanaryWeb.MachineController do
 
   def delete(conn, %{"id" => id}) do
     machine = Machines.get_machine!(id)
+    machine_id_atom = String.to_atom("watcher_#{id}")
+
     {:ok, _machine} = Machines.delete_machine(machine)
+
+    case Process.whereis(machine_id_atom) do
+      pid when is_pid(pid) ->
+        DynamicSupervisor.terminate_child(
+          Canary.DynamicSupervisor,
+          pid
+        )
+
+      nil ->
+        nil
+    end
 
     conn
     |> put_flash(:info, "Machine deleted successfully.")
