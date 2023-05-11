@@ -1,10 +1,10 @@
 # Canary
 
-Canary is uptime monitor that leverage the Erlang OTP to maximize up time.  
+Canary is an uptime monitor that leverages the Erlang OTP and Phoenix Liveview for a fault tolerant / real time application.  
 
 # Architecture
 
-To understand the architecture, it may help to understand what I wanted a uptime monitor to achieve. Canary is primarily used in my home lab to keep track of the oneline status of my hardware and virtual machines. In addition to checking the status when I visted the website, I wanted the app to keep track the status while I was away.
+To understand the architecture, I think it help to go over what I wanted in an uptime monitor. Canary is primarily used in my home lab to keep track of the online status of my hardware and virtual machines. In addition to checking the status when I visted the website, I also wanted the app to keep track the status while I was away.
 
 Most web frameworks follow the standard request/response model as illustrated in Figure 1 below.
 
