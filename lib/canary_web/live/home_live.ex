@@ -20,18 +20,29 @@ defmodule CanaryWeb.HomeLive do
             <%= if Enum.empty?(Map.get(@pings_map, machine.id)) do %>
               <span class="text-gray-400">Loading...</span>
             <% else %>
-              <%= for ping <- Map.get(@pings_map, machine.id) do %>
-                <%= if ping  == nil do %>
-                  "empty"
+              <div>
+                <%= for {ping, i} <- Map.get(@pings_map, machine.id) |> Enum.with_index do %>
+                  <%= if  ping.status == "online" do %>
+                    <%= if i == 0 do %>
+                      <span class="bg-green-400 rounded h-5 w-1 inline-block"></span>
+                    <% else %>
+                      <span class="bg-green-400 opacity-50 rounded h-5 w-1 inline-block"></span>
+                    <% end %>
+                  <% end %>
+
+                  <%= if  ping.status == "down" do %>
+                    <%= if i == 0 do %>
+                      <span class="bg-red-400 rounded h-5 w-1 inline-block"></span>
+                    <% else %>
+                      <span class="bg-red-400 opacity-70 rounded h-5 w-1 inline-block"></span>
+                    <% end %>
+                  <% end %>
                 <% end %>
-                <%= if  ping.status == "online" do %>
-                  <span class="bg-green-400 rounded h-5 w-1 inline-block"></span>
-                <% end %>
-                <%= if  ping.status == "down" do %>
-                  <span class="bg-red-400 rounded h-5 w-1 inline-block"></span>
-                <% end %>
-              <% end %>
+              </div>
             <% end %>
+            <div class="text-gray-500 text-sm">
+              <span><%= Map.get(@pings_map, machine.id) |> get_timestamp_from_last_ping %></span>
+            </div>
           </div>
         </div>
       <% end %>
@@ -43,9 +54,7 @@ defmodule CanaryWeb.HomeLive do
     CanaryWeb.Endpoint.subscribe(@topic)
 
     machines = Machines.list_machines()
-
     pings_map = init_pings(machines)
-    # IO.inspect(pings)
 
     {:ok, assign(socket, machines: machines, pings_map: pings_map)}
   end
@@ -57,6 +66,18 @@ defmodule CanaryWeb.HomeLive do
     |> Map.new(fn m ->
       {m.id, get_pings(m.id)}
     end)
+  end
+
+  defp get_timestamp_from_last_ping(pings) when is_list(pings) do
+    last_ping = pings |> List.first()
+
+    case last_ping do
+      nil ->
+        ""
+
+      _ ->
+        Map.get(last_ping, :updated_at)
+    end
   end
 
   def get_pings(machine_id) do

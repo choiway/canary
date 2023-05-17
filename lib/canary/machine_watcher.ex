@@ -54,15 +54,15 @@ defmodule Canary.MachineWatcher do
       status: online_status
     }
 
-    updated_pings = [new_ping | pings] |> Enum.take(30)
-
     # IO.puts("Machine #{machine.id} is #{online_status}")
     # update_response = Machines.update_machine(machine, %{online: online_status})
     create_response = Machines.create_ping(new_ping)
     # IO.inspect(create_response)
 
     case create_response do
-      {:ok, _new_ping} ->
+      {:ok, new_ping} ->
+        updated_pings = [new_ping | pings] |> Enum.take(30)
+
         CanaryWeb.Endpoint.broadcast_from(
           self(),
           @topic,
@@ -70,14 +70,13 @@ defmodule Canary.MachineWatcher do
           %{machine: machine, pings: updated_pings}
         )
 
+        schedule_work()
+        {:noreply, [machine: machine, pings: updated_pings]}
+
       {:error, changeset} ->
         IO.puts("The following error(s) occurred while trying to update machine")
         IO.inspect(changeset)
     end
-
-    schedule_work()
-
-    {:noreply, [machine: machine, pings: updated_pings]}
   end
 
   defp schedule_work() do
