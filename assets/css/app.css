@@ -4,3 +4,18 @@
 
 /* This file is for your main application CSS */
 
+
+.machine-ts {
+    color: #4b5563;
+    background-color: transparent;
+}
+
+@keyframes fadeOut {
+   0% {color: white}
+   100% {color: #4b5563} 
+}
+
+.machine-ts[mod-highlight] {
+  animation: fadeOut 5s 1;
+}
+

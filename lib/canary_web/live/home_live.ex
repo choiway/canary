@@ -41,7 +41,7 @@ defmodule CanaryWeb.HomeLive do
               </div>
             <% end %>
             <div class="text-gray-500 text-sm">
-              <span><%= Map.get(@pings_map, machine.id) |> get_timestamp_from_last_ping %></span>
+              <span class="machine-ts" mod-highlight={@machine_id == machine.id}><%= Map.get(@pings_map, machine.id) |> get_timestamp_from_last_ping %></span>
             </div>
           </div>
         </div>
@@ -56,7 +56,7 @@ defmodule CanaryWeb.HomeLive do
     machines = Machines.list_machines()
     pings_map = init_pings(machines)
 
-    {:ok, assign(socket, machines: machines, pings_map: pings_map)}
+    {:ok, assign(socket, machines: machines, pings_map: pings_map, machine_id: nil)}
   end
 
   # pings map is a map of machine_id => [pings]
@@ -101,6 +101,6 @@ defmodule CanaryWeb.HomeLive do
     pings_map = socket.assigns.pings_map
     updated_pings = pings_map |> Map.put(machine.id, pings)
 
-    {:noreply, assign(socket, pings_map: updated_pings)}
+    {:noreply, assign(socket, pings_map: updated_pings, machine_id: machine.id)}
   end
 end
