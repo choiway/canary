@@ -69,8 +69,6 @@ defmodule CanaryWeb.HomeLive do
         %{topic: @topic, event: "update", payload: %{machine: machine, pings: pings}},
         socket
       ) do
-    # IO.puts("HANDLE BROADCAST FOR:")
-    # IO.inspect(machine)
     pings_map = socket.assigns.pings_map
     updated_pings = pings_map |> Map.put(machine.id, pings)
 
